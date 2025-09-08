@@ -8,7 +8,8 @@ namespace RotoConectorHerraje
 {
     public class XmlData
     {
-        public string supplier {  get; set; }
+        public string Supplier { get; set; }
+        public int HardwareType { get; set; }
         public List<Set> SetList { get; set; }
         public List<FittingGroup> FittingGroupList { get; set; }
         public List<Fitting> FittingList { get; set; }

@@ -27,10 +27,17 @@ namespace RotoConectorHerraje
             PracticableIzquierdaExt = 13,
             PracticableDerechaExt = 14,
         }
+        public enum enumHardwareType
+        {
+            PVC = 1,
+            Aluminio = 2,
+            PAX = 3
+        }
 
         private string ConnectionString { get; set; }
         private string Server { get; set; }
         private string BaseDatos { get; set; }
+        private int HardwareType { get; set; }
 
         bool xmlCargado = false;
         XmlData xmlOrigen = new();
@@ -176,7 +183,9 @@ namespace RotoConectorHerraje
                 nsmgr.AddNamespace("hw", "http://www.preference.com/XMLSchemas/2006/Hardware");
 
                 XmlData xmlData = new XmlData();
-                xmlData.supplier = LoadSupplier(doc);
+                xmlData.Supplier = LoadSupplier(doc);
+                xmlData.HardwareType = LoadHardwareType(xmlData.Supplier);
+                this.HardwareType = xmlData.HardwareType;
                 xmlData.FittingGroupList = LoadFittingGroups(doc);
                 xmlData.ColourList = LoadColourMaps(doc);
                 xmlData.OptionList = LoadDocOptions(doc);
@@ -191,6 +200,22 @@ namespace RotoConectorHerraje
                 return null;
             }
 
+        }
+
+        private int LoadHardwareType(string supplier)
+        {
+            if (supplier.ToUpper().Contains("ALU"))
+            {
+                return (int)enumHardwareType.Aluminio;
+            }
+            else if (supplier.ToUpper().Contains("PAX"))
+            {
+                return (int)enumHardwareType.PAX;
+            }
+            else
+            {
+                return (int)enumHardwareType.PVC;
+            }
         }
 
         private string LoadSupplier(XmlDocument doc)
@@ -676,6 +701,493 @@ namespace RotoConectorHerraje
         {
             List<Set> setList = new List<Set>();
 
+            if (this.HardwareType == (int)enumHardwareType.PVC)
+            {
+                setList = GetSetsToConnectorPVC();
+            }
+            else if (this.HardwareType == (int)enumHardwareType.Aluminio)
+            {
+                setList = GetSetsToConnectorAluminio();
+            }
+            else if (this.HardwareType == (int)enumHardwareType.PAX)
+            {
+                setList = GetSetsToConnectorPAX();
+            }
+            return setList;
+        }
+
+        private List<Set> GetSetsToConnectorAluminio()
+        {
+            List<Set> setList = new List<Set>();
+            #region COTA FIJA 
+
+            #region VENTANAS
+
+            List<Set> sets1HVentanaOsciloBatienteActivaCotaFija = GetSetsCF1HActivaVentanaOsciloBatienteALU();
+
+            if (sets1HVentanaOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HVentanaOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets1HVentanaPracticableActivaCotaFija = GetSetsCF1HActivaVentanaPracticableALU();
+
+            if (sets1HVentanaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V1H PRACTICABLE"));
+                setList.AddRange(sets1HVentanaPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HVentanaOsciloBatienteActivaCotaFija = GetSetsCF2HActivaVentanaOsciloBatienteALU();
+            if (sets2HVentanaOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HVentanaOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets2HVentanaPracticableActivaCotaFija = GetSetsCF2HActivaVentanaPracticableALU();
+            if (sets2HVentanaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V2H PRACTICABLE"));
+                setList.AddRange(sets2HVentanaPracticableActivaCotaFija);
+            }
+
+
+            List<Set> sets2HVentanaPasivaCotaFija = GetSetsCF2HPasivaVentanaPracticableALU();
+            if (sets2HVentanaPasivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V2H PASIVA"));
+                setList.AddRange(sets2HVentanaPasivaCotaFija);
+            }
+
+            #endregion
+
+            #region BALCONERAS
+            List<Set> sets1HBalconeraOsciloBatienteActivaCotaFija = GetSetsCF1HActivaBalconeraOsciloBatiente();
+            if (sets1HBalconeraOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HBalconeraOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaFija = GetSetsCF1HActivaBalconeraPracticable();
+            if (sets1HBalconeraPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B1H PRACTICABLE"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HBalconeraOsciloBatienteActivaCotaFija = GetSetsCF2HActivaBalconeraOsciloBatiente();
+            if (sets2HBalconeraOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HBalconeraOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaFija = GetSetsCF2HActivaBalconeraPracticable();
+            if (sets2HBalconeraPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B2H PRACTICABLE"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HBalconeraPasivaCotaFija = GetSetsCF2HPasivaBalconeraPracticable();
+            if (sets2HBalconeraPasivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR B2H PASIVA"));
+                setList.AddRange(sets2HBalconeraPasivaCotaFija);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaFijaAperturaExterior = GetSetsCF1HActivaBalconeraPracticableAperturaExterior();
+            if (sets1HBalconeraPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF B1H APERTURA EXTERIOR"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaFijaAperturaExterior = GetSetsCF2HActivaBalconeraPracticableAperturaExterior();
+            if (sets2HBalconeraPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF B2H APERTURA EXTERIOR"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticablePasivaCotaFijaAperturaExterior = GetSetsCF2HPasivaBalconeraPracticableAperturaExterior();
+            if (sets2HBalconeraPracticablePasivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF B2H PASIVA APERTURA EX"));
+                setList.AddRange(sets2HBalconeraPracticablePasivaCotaFijaAperturaExterior);
+            }
+
+            #endregion
+
+            #region PUERTAS SECUNDARIAS
+            List<Set> sets1HPuertaSecundariaPracticableActivaCotaFija = GetSetsCF1HActivaPuertaSecundariaPracticable();
+            if (sets1HPuertaSecundariaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P SEC. 1H"));
+                setList.AddRange(sets1HPuertaSecundariaPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticableActivaCotaFija = GetSetsCF2HActivaPuertaSecundariaPracticable();
+            if (sets1HPuertaSecundariaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H"));
+                setList.AddRange(sets2HPuertaSecundariaPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticablePasivaCotaFija = GetSetsCF2HPasivaPuertaSecundariaPracticable();
+            if (sets2HPuertaSecundariaPracticablePasivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H PASIVA"));
+                setList.AddRange(sets2HPuertaSecundariaPracticablePasivaCotaFija);
+            }
+
+            List<Set> sets1HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior = GetSetsCF1HActivaPuertaSecundariaPracticableAperturaExterior();
+            if (sets1HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P SEC. 1H A.E."));
+                setList.AddRange(sets1HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior = GetSetsCF2HActivaPuertaSecundariaPracticableAperturaExterior();
+            if (sets2HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H A.E."));
+                setList.AddRange(sets2HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticablePasivaCotaFijaAperturaExterior = GetSetsCF2HPasivaPuertaSecundariaPracticableAperturaExterior();
+            if (sets2HPuertaSecundariaPracticablePasivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H PASIVA A.E."));
+                setList.AddRange(sets2HPuertaSecundariaPracticablePasivaCotaFijaAperturaExterior);
+            }
+
+            #endregion
+
+            #region PUERTAS
+
+            List<Set> sets1HPuertaCotaFija = GetSetsCF1HActivaPuerta();
+            if (sets1HPuertaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P1H"));
+                setList.AddRange(sets1HPuertaCotaFija);
+            }
+
+            List<Set> sets2HActivaPuertaCotaFija = GetSetsCF2HActivaPuerta();
+            if (sets2HActivaPuertaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P2H"));
+                setList.AddRange(sets2HActivaPuertaCotaFija);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaFija = GetSetsCF2HPasivaPuerta();
+            if (sets2HPasivaPuertaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P2H PASIVA"));
+                setList.AddRange(sets2HPasivaPuertaCotaFija);
+            }
+
+            List<Set> sets1HPuertaCotaFijaAperturaExterior = GetSetsCF1HPuertaAperturaExterior();
+            if (sets1HPuertaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P1H APERTURA EXT"));
+                setList.AddRange(sets1HPuertaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HActivaPuertaCotaFijaAperturaExterior = GetSetsCF2HActivaPuertaAperturaExterior();
+            if (sets2HActivaPuertaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P2H APERTURA EXT"));
+                setList.AddRange(sets2HActivaPuertaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaFijaAperturaExterior = GetSetsCF2HPasivaPuertaAperturaExterior();
+            if (sets2HPasivaPuertaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P2H PASIVA APERTURA EXT"));
+                setList.AddRange(sets2HPasivaPuertaCotaFijaAperturaExterior);
+            }
+            #endregion
+
+            #region CORREDERAS
+
+            List<Set> setsCorrederaCotaFija = GetSetsCFCorredera();
+
+            if (setsCorrederaCotaFija.Any())
+            {
+                setList.Add(new Set("CF CORREDERA"));
+                setList.AddRange(setsCorrederaCotaFija);
+            }
+
+            #endregion
+
+            #region PATIO LIFT
+
+            List<Set> setsPatioLiftCotaFija = GetSetsCFPatioLift();
+
+            if (setsCorrederaCotaFija.Any())
+            {
+                setList.Add(new Set("CF PATIO LIFT"));
+                setList.AddRange(setsPatioLiftCotaFija);
+            }
+
+            #endregion
+
+            #region PLEGABLES
+
+            List<Set> setsPlegablesCotaFija = GetSetsCFPlegables();
+
+            if (setsPlegablesCotaFija.Any())
+            {
+                setList.Add(new Set("CF PLEGABLE"));
+                setList.AddRange(setsPlegablesCotaFija);
+            }
+
+            #endregion
+
+            #endregion
+
+            #region COTA VARIABLE
+
+            #region ABATIBLES
+
+            List<Set> setsAbatiblesCotaVariable = GetSetsCVAbatibles();
+
+            if (setsAbatiblesCotaVariable.Any())
+            {
+                setList.Add(new Set("CV ABATIBLES"));
+                setList.AddRange(setsAbatiblesCotaVariable);
+            }
+
+
+            #endregion
+
+            #region VENTANAS
+
+            List<Set> sets1HVentanaOsciloBatienteActivaCotaVariable = GetSetsCV1HActivaVentanaOsciloBatienteALU();
+
+            if (sets1HVentanaOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HVentanaOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets1HVentanaPracticableActivaCotaVariable = GetSetsCV1HActivaVentanaPracticableALU();
+
+            if (sets1HVentanaPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V1H PRACTICABLE"));
+                setList.AddRange(sets1HVentanaPracticableActivaCotaVariable);
+            }
+
+            List<Set> sets2HVentanaOsciloBatienteActivaCotaVariable = GetSetsCV2HActivaVentanaOsciloBatienteALU();
+            if (sets2HVentanaOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HVentanaOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets2HVentanaPracticableActivaCotaVariable = GetSetsCV2HActivaVentanaPracticableALU();
+            if (sets2HVentanaPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V2H PRACTICABLE"));
+                setList.AddRange(sets2HVentanaPracticableActivaCotaVariable);
+            }
+
+
+            List<Set> sets2HVentanaPasivaCotaVariable = GetSetsCV2HPasivaVentanaPracticableALU();
+            if (sets2HVentanaPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V2H PASIVA"));
+                setList.AddRange(sets2HVentanaPasivaCotaVariable);
+            }
+
+            #endregion
+
+            #region BALCONERAS
+
+            List<Set> sets1HBalconeraOsciloBatienteActivaCotaVariable = GetSetsCV1HActivaBalconeraOsciloBatiente();
+            if (sets1HBalconeraOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HBalconeraOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaVariable = GetSetsCV1HActivaBalconeraPracticable();
+            if (sets1HBalconeraPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B1H PRACTICABLE"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaVariable);
+            }
+
+            List<Set> sets2HBalconeraOsciloBatienteActivaCotaVariable = GetSetsCV2HActivaBalconeraOsciloBatiente();
+            if (sets2HBalconeraOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HBalconeraOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaVariable = GetSetsCV2HActivaBalconeraPracticable();
+            if (sets2HBalconeraPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B2H PRACTICABLE"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaVariable);
+            }
+
+            List<Set> sets2HBalconeraPasivaCotaVariable = GetSetsCV2HPasivaBalconeraPracticable();
+            if (sets2HBalconeraPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B2H PASIVA"));
+                setList.AddRange(sets2HBalconeraPasivaCotaVariable);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaVariableAperturaExterior = GetSetsCV1HActivaBalconeraPracticableAperturaExterior();
+            if (sets1HBalconeraPracticableActivaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV B1H APERTURA EXT"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaVariableAperturaExterior = GetSetsCV2HActivaBalconeraPracticableAperturaExterior();
+            if (sets2HBalconeraPracticableActivaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV B2H APERTURA EXTERIOR"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticablePasivaCotaVariableAperturaExterior = GetSetsCV2HPasivaBalconeraPracticableAperturaExterior();
+            if (sets2HBalconeraPracticablePasivaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV B2H PASIVA AP. EXT"));
+                setList.AddRange(sets2HBalconeraPracticablePasivaCotaVariableAperturaExterior);
+            }
+            #endregion
+
+            #region PUERTAS
+
+            List<Set> setsPuerta1HCotaVariable = GetSetsCV1HActivaPuerta();
+
+            if (setsPuerta1HCotaVariable.Any())
+            {
+                setList.Add(new Set("CV P1H"));
+                setList.AddRange(setsPuerta1HCotaVariable);
+            }
+
+            List<Set> setsPuerta2HActivaCotaVariable = GetSetsCV2HActivaPuerta();
+
+            if (setsPuerta2HActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV P2H"));
+                setList.AddRange(setsPuerta2HActivaCotaVariable);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaVariable = GetSetsCV2HPasivaPuerta();
+            if (sets2HPasivaPuertaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV P2H PASIVA"));
+                setList.AddRange(sets2HPasivaPuertaCotaVariable);
+            }
+
+            List<Set> sets1HPuertaCotaVariableAperturaExterior = GetSetsCV1HPuertaAperturaExterior();
+            if (sets1HPuertaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV P1H APERTURA EXT"));
+                setList.AddRange(sets1HPuertaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HActivaPuertaCotaVariableAperturaExterior = GetSetsCV2HActivaPuertaAperturaExterior();
+            if (sets2HActivaPuertaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV P2H APERTURA EXT"));
+                setList.AddRange(sets2HActivaPuertaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaVariableAperturaExterior = GetSetsCV2HPasivaPuertaAperturaExterior();
+            if (sets2HPasivaPuertaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV P2H PASIVA APERTURA EXT"));
+                setList.AddRange(sets2HPasivaPuertaCotaVariableAperturaExterior);
+            }
+            #endregion
+
+            #region OSCILOPARALELAS
+
+            List<Set> setsOsciloParalela1HCotaVariable = GetSetsCVOsciloParalela1H();
+
+            if (setsOsciloParalela1HCotaVariable.Any())
+            {
+                setList.Add(new Set("CV OSCILOPARALELA 1 HOJA"));
+                setList.AddRange(setsOsciloParalela1HCotaVariable);
+            }
+
+            List<Set> setsOsciloParalela2HActivaCotaVariable = GetSetsCVOsciloParalela2HActiva();
+
+            if (setsOsciloParalela2HActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV OSCILOPARALELA 2H ACT."));
+                setList.AddRange(setsOsciloParalela2HActivaCotaVariable);
+            }
+            List<Set> setsOsciloParalela2HPasivaCotaVariable = GetSetsCVOsciloParalela2HPasiva();
+
+            if (setsOsciloParalela2HPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV OSCILOPARALELA 2H PAS."));
+                setList.AddRange(setsOsciloParalela2HPasivaCotaVariable);
+            }
+
+            #endregion
+
+            #region PARALELAS CORREDERAS
+
+            List<Set> setsParalelaCorredera1HCotaVariable = GetSetsCVParalelaCorredera1H();
+
+            if (setsParalelaCorredera1HCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PARALELA CORREDERA 1 HOJA"));
+                setList.AddRange(setsParalelaCorredera1HCotaVariable);
+            }
+
+            List<Set> setsParalelaCorredera2HActivaCotaVariable = GetSetsCVParalelaCorredera2HActiva();
+
+            if (setsParalelaCorredera2HActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PARALELA CORREDERA 2H ACT."));
+                setList.AddRange(setsParalelaCorredera2HActivaCotaVariable);
+            }
+            List<Set> setsParalelaCorredera2HPasivaCotaVariable = GetSetsCVParalelaCorredera2HPasiva();
+
+            if (setsParalelaCorredera2HPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PARALELA CORREDERA 2H PAS."));
+                setList.AddRange(setsParalelaCorredera2HPasivaCotaVariable);
+            }
+
+            #endregion
+
+            #region PLEGABLES
+
+            List<Set> setsPlegablesCotaVariable = GetSetsCVPlegables();
+
+            if (setsPlegablesCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PLEGABLE"));
+                setList.AddRange(setsPlegablesCotaVariable);
+            }
+
+            #endregion
+
+            #endregion
+
+            return setList;
+        }
+
+        private List<Set> GetSetsToConnectorPVC()
+        {
+            List<Set> setList = new List<Set>();
+
             #region COTA FIJA 
 
             #region VENTANAS
@@ -1139,15 +1651,485 @@ namespace RotoConectorHerraje
             #endregion
 
             return setList;
+
         }
 
+        private List<Set> GetSetsToConnectorPAX()
+        {
+            List<Set> setList = new List<Set>();
+            #region COTA FIJA 
+
+            #region VENTANAS
+
+            List<Set> sets1HVentanaOsciloBatienteActivaCotaFija = GetSetsCF1HActivaVentanaOsciloBatientePAX();
+
+            if (sets1HVentanaOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HVentanaOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets1HVentanaPracticableActivaCotaFija = GetSetsCF1HActivaVentanaPracticablePAX();
+
+            if (sets1HVentanaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V1H PRACTICABLE"));
+                setList.AddRange(sets1HVentanaPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HVentanaOsciloBatienteActivaCotaFija = GetSetsCF2HActivaVentanaOsciloBatientePAX();
+            if (sets2HVentanaOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HVentanaOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets2HVentanaPracticableActivaCotaFija = GetSetsCF2HActivaVentanaPracticablePAX();
+            if (sets2HVentanaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V2H PRACTICABLE"));
+                setList.AddRange(sets2HVentanaPracticableActivaCotaFija);
+            }
+
+
+            List<Set> sets2HVentanaPasivaCotaFija = GetSetsCF2HPasivaVentanaPracticablePAX();
+            if (sets2HVentanaPasivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR V2H PASIVA"));
+                setList.AddRange(sets2HVentanaPasivaCotaFija);
+            }
+
+            #endregion
+
+            #region BALCONERAS
+            List<Set> sets1HBalconeraOsciloBatienteActivaCotaFija = GetSetsCF1HActivaBalconeraOsciloBatientePAX();
+            if (sets1HBalconeraOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HBalconeraOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaFija = GetSetsCF1HActivaBalconeraPracticablePAX();
+            if (sets1HBalconeraPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B1H PRACTICABLE"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HBalconeraOsciloBatienteActivaCotaFija = GetSetsCF2HActivaBalconeraOsciloBatientePAX();
+            if (sets2HBalconeraOsciloBatienteActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HBalconeraOsciloBatienteActivaCotaFija);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaFija = GetSetsCF2HActivaBalconeraPracticablePAX();
+            if (sets2HBalconeraPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF B2H PRACTICABLE"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HBalconeraPasivaCotaFija = GetSetsCF2HPasivaBalconeraPracticablePAX();
+            if (sets2HBalconeraPasivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF KSR B2H PASIVA"));
+                setList.AddRange(sets2HBalconeraPasivaCotaFija);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaFijaAperturaExterior = GetSetsCF1HActivaBalconeraPracticableAperturaExteriorPAX();
+            if (sets1HBalconeraPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF B1H APERTURA EXTERIOR"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaFijaAperturaExterior = GetSetsCF2HActivaBalconeraPracticableAperturaExteriorPAX();
+            if (sets2HBalconeraPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF B2H APERTURA EXTERIOR"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticablePasivaCotaFijaAperturaExterior = GetSetsCF2HPasivaBalconeraPracticableAperturaExteriorPAX();
+            if (sets2HBalconeraPracticablePasivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF B2H PASIVA APERTURA EX"));
+                setList.AddRange(sets2HBalconeraPracticablePasivaCotaFijaAperturaExterior);
+            }
+
+            #endregion
+
+            #region PUERTAS SECUNDARIAS
+            List<Set> sets1HPuertaSecundariaPracticableActivaCotaFija = GetSetsCF1HActivaPuertaSecundariaPracticablePAX();
+            if (sets1HPuertaSecundariaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P SEC. 1H"));
+                setList.AddRange(sets1HPuertaSecundariaPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticableActivaCotaFija = GetSetsCF2HActivaPuertaSecundariaPracticablePAX();
+            if (sets1HPuertaSecundariaPracticableActivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H"));
+                setList.AddRange(sets2HPuertaSecundariaPracticableActivaCotaFija);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticablePasivaCotaFija = GetSetsCF2HPasivaPuertaSecundariaPracticablePAX();
+            if (sets2HPuertaSecundariaPracticablePasivaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H PASIVA"));
+                setList.AddRange(sets2HPuertaSecundariaPracticablePasivaCotaFija);
+            }
+
+            List<Set> sets1HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior = GetSetsCF1HActivaPuertaSecundariaPracticableAperturaExteriorPAX();
+            if (sets1HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P SEC. 1H A.E."));
+                setList.AddRange(sets1HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior = GetSetsCF2HActivaPuertaSecundariaPracticableAperturaExteriorPAX();
+            if (sets2HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H A.E."));
+                setList.AddRange(sets2HPuertaSecundariaPracticableActivaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HPuertaSecundariaPracticablePasivaCotaFijaAperturaExterior = GetSetsCF2HPasivaPuertaSecundariaPracticableAperturaExteriorPAX();
+            if (sets2HPuertaSecundariaPracticablePasivaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P SEC. 2H PASIVA A.E."));
+                setList.AddRange(sets2HPuertaSecundariaPracticablePasivaCotaFijaAperturaExterior);
+            }
+
+            #endregion
+
+            #region PUERTAS
+
+            List<Set> sets1HPuertaCotaFija = GetSetsCF1HActivaPuertaPAX();
+            if (sets1HPuertaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P1H"));
+                setList.AddRange(sets1HPuertaCotaFija);
+            }
+
+            List<Set> sets2HActivaPuertaCotaFija = GetSetsCF2HActivaPuertaPAX();
+            if (sets2HActivaPuertaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P2H"));
+                setList.AddRange(sets2HActivaPuertaCotaFija);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaFija = GetSetsCF2HPasivaPuertaPAX();
+            if (sets2HPasivaPuertaCotaFija.Any())
+            {
+                setList.Add(new Set("CF P2H PASIVA"));
+                setList.AddRange(sets2HPasivaPuertaCotaFija);
+            }
+
+            List<Set> sets1HPuertaCotaFijaAperturaExterior = GetSetsCF1HPuertaAperturaExteriorPAX();
+            if (sets1HPuertaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P1H APERTURA EXT"));
+                setList.AddRange(sets1HPuertaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HActivaPuertaCotaFijaAperturaExterior = GetSetsCF2HActivaPuertaAperturaExteriorPAX();
+            if (sets2HActivaPuertaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P2H APERTURA EXT"));
+                setList.AddRange(sets2HActivaPuertaCotaFijaAperturaExterior);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaFijaAperturaExterior = GetSetsCF2HPasivaPuertaAperturaExteriorPAX();
+            if (sets2HPasivaPuertaCotaFijaAperturaExterior.Any())
+            {
+                setList.Add(new Set("CF P2H PASIVA APERTURA EXT"));
+                setList.AddRange(sets2HPasivaPuertaCotaFijaAperturaExterior);
+            }
+            #endregion
+
+            #region CORREDERAS
+
+            List<Set> setsCorrederaCotaFija = GetSetsCFCorredera();
+
+            if (setsCorrederaCotaFija.Any())
+            {
+                setList.Add(new Set("CF CORREDERA"));
+                setList.AddRange(setsCorrederaCotaFija);
+            }
+
+            #endregion
+
+            #region PATIO LIFT
+
+            List<Set> setsPatioLiftCotaFija = GetSetsCFPatioLift();
+
+            if (setsCorrederaCotaFija.Any())
+            {
+                setList.Add(new Set("CF PATIO LIFT"));
+                setList.AddRange(setsPatioLiftCotaFija);
+            }
+
+            #endregion
+
+            #region PLEGABLES
+
+            List<Set> setsPlegablesCotaFija = GetSetsCFPlegables();
+
+            if (setsPlegablesCotaFija.Any())
+            {
+                setList.Add(new Set("CF PLEGABLE"));
+                setList.AddRange(setsPlegablesCotaFija);
+            }
+
+            #endregion
+
+            #endregion
+
+            #region COTA VARIABLE
+
+            #region ABATIBLES
+
+            List<Set> setsAbatiblesCotaVariable = GetSetsCVAbatibles();
+
+            if (setsAbatiblesCotaVariable.Any())
+            {
+                setList.Add(new Set("CV ABATIBLES"));
+                setList.AddRange(setsAbatiblesCotaVariable);
+            }
+
+
+            #endregion
+
+            #region VENTANAS
+
+            List<Set> sets1HVentanaOsciloBatienteActivaCotaVariable = GetSetsCV1HActivaVentanaOsciloBatientePAX();
+
+            if (sets1HVentanaOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HVentanaOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets1HVentanaPracticableActivaCotaVariable = GetSetsCV1HActivaVentanaPracticablePAX();
+
+            if (sets1HVentanaPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V1H PRACTICABLE"));
+                setList.AddRange(sets1HVentanaPracticableActivaCotaVariable);
+            }
+
+            List<Set> sets2HVentanaOsciloBatienteActivaCotaVariable = GetSetsCV2HActivaVentanaOsciloBatientePAX();
+            if (sets2HVentanaOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HVentanaOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets2HVentanaPracticableActivaCotaVariable = GetSetsCV2HActivaVentanaPracticablePAX();
+            if (sets2HVentanaPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V2H PRACTICABLE"));
+                setList.AddRange(sets2HVentanaPracticableActivaCotaVariable);
+            }
+
+
+            List<Set> sets2HVentanaPasivaCotaVariable = GetSetsCV2HPasivaVentanaPracticablePAX();
+            if (sets2HVentanaPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV V2H PASIVA"));
+                setList.AddRange(sets2HVentanaPasivaCotaVariable);
+            }
+
+            #endregion
+
+            #region BALCONERAS
+
+            List<Set> sets1HBalconeraOsciloBatienteActivaCotaVariable = GetSetsCV1HActivaBalconeraOsciloBatientePAX();
+            if (sets1HBalconeraOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B1H OSCILOBATIENTE"));
+                setList.AddRange(sets1HBalconeraOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaVariable = GetSetsCV1HActivaBalconeraPracticablePAX();
+            if (sets1HBalconeraPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B1H PRACTICABLE"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaVariable);
+            }
+
+            List<Set> sets2HBalconeraOsciloBatienteActivaCotaVariable = GetSetsCV2HActivaBalconeraOsciloBatientePAX();
+            if (sets2HBalconeraOsciloBatienteActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B2H OSCILOBATIENTE"));
+                setList.AddRange(sets2HBalconeraOsciloBatienteActivaCotaVariable);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaVariable = GetSetsCV2HActivaBalconeraPracticablePAX();
+            if (sets2HBalconeraPracticableActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B2H PRACTICABLE"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaVariable);
+            }
+
+            List<Set> sets2HBalconeraPasivaCotaVariable = GetSetsCV2HPasivaBalconeraPracticablePAX();
+            if (sets2HBalconeraPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV B2H PASIVA"));
+                setList.AddRange(sets2HBalconeraPasivaCotaVariable);
+            }
+
+            List<Set> sets1HBalconeraPracticableActivaCotaVariableAperturaExterior = GetSetsCV1HActivaBalconeraPracticableAperturaExteriorPAX();
+            if (sets1HBalconeraPracticableActivaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV B1H APERTURA EXT"));
+                setList.AddRange(sets1HBalconeraPracticableActivaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticableActivaCotaVariableAperturaExterior = GetSetsCV2HActivaBalconeraPracticableAperturaExteriorPAX();
+            if (sets2HBalconeraPracticableActivaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV B2H APERTURA EXTERIOR"));
+                setList.AddRange(sets2HBalconeraPracticableActivaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HBalconeraPracticablePasivaCotaVariableAperturaExterior = GetSetsCV2HPasivaBalconeraPracticableAperturaExteriorPAX();
+            if (sets2HBalconeraPracticablePasivaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV B2H PASIVA AP. EXT"));
+                setList.AddRange(sets2HBalconeraPracticablePasivaCotaVariableAperturaExterior);
+            }
+            #endregion
+
+            #region PUERTAS
+
+            List<Set> setsPuerta1HCotaVariable = GetSetsCV1HActivaPuertaPAX();
+
+            if (setsPuerta1HCotaVariable.Any())
+            {
+                setList.Add(new Set("CV P1H"));
+                setList.AddRange(setsPuerta1HCotaVariable);
+            }
+
+            List<Set> setsPuerta2HActivaCotaVariable = GetSetsCV2HActivaPuertaPAX();
+
+            if (setsPuerta2HActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV P2H"));
+                setList.AddRange(setsPuerta2HActivaCotaVariable);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaVariable = GetSetsCV2HPasivaPuertaPAX();
+            if (sets2HPasivaPuertaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV P2H PASIVA"));
+                setList.AddRange(sets2HPasivaPuertaCotaVariable);
+            }
+
+            List<Set> sets1HPuertaCotaVariableAperturaExterior = GetSetsCV1HPuertaAperturaExteriorPAX();
+            if (sets1HPuertaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV P1H APERTURA EXT"));
+                setList.AddRange(sets1HPuertaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HActivaPuertaCotaVariableAperturaExterior = GetSetsCV2HActivaPuertaAperturaExteriorPAX();
+            if (sets2HActivaPuertaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV P2H APERTURA EXT"));
+                setList.AddRange(sets2HActivaPuertaCotaVariableAperturaExterior);
+            }
+
+            List<Set> sets2HPasivaPuertaCotaVariableAperturaExterior = GetSetsCV2HPasivaPuertaAperturaExteriorPAX();
+            if (sets2HPasivaPuertaCotaVariableAperturaExterior.Any())
+            {
+                setList.Add(new Set("CV P2H PASIVA APERTURA EXT"));
+                setList.AddRange(sets2HPasivaPuertaCotaVariableAperturaExterior);
+            }
+            #endregion
+
+            #region OSCILOPARALELAS
+
+            List<Set> setsOsciloParalela1HCotaVariable = GetSetsCVOsciloParalela1H();
+
+            if (setsOsciloParalela1HCotaVariable.Any())
+            {
+                setList.Add(new Set("CV OSCILOPARALELA 1 HOJA"));
+                setList.AddRange(setsOsciloParalela1HCotaVariable);
+            }
+
+            List<Set> setsOsciloParalela2HActivaCotaVariable = GetSetsCVOsciloParalela2HActiva();
+
+            if (setsOsciloParalela2HActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV OSCILOPARALELA 2H ACT."));
+                setList.AddRange(setsOsciloParalela2HActivaCotaVariable);
+            }
+            List<Set> setsOsciloParalela2HPasivaCotaVariable = GetSetsCVOsciloParalela2HPasiva();
+
+            if (setsOsciloParalela2HPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV OSCILOPARALELA 2H PAS."));
+                setList.AddRange(setsOsciloParalela2HPasivaCotaVariable);
+            }
+
+            #endregion
+
+            #region PARALELAS CORREDERAS
+
+            List<Set> setsParalelaCorredera1HCotaVariable = GetSetsCVParalelaCorredera1H();
+
+            if (setsParalelaCorredera1HCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PARALELA CORREDERA 1 HOJA"));
+                setList.AddRange(setsParalelaCorredera1HCotaVariable);
+            }
+
+            List<Set> setsParalelaCorredera2HActivaCotaVariable = GetSetsCVParalelaCorredera2HActiva();
+
+            if (setsParalelaCorredera2HActivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PARALELA CORREDERA 2H ACT."));
+                setList.AddRange(setsParalelaCorredera2HActivaCotaVariable);
+            }
+            List<Set> setsParalelaCorredera2HPasivaCotaVariable = GetSetsCVParalelaCorredera2HPasiva();
+
+            if (setsParalelaCorredera2HPasivaCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PARALELA CORREDERA 2H PAS."));
+                setList.AddRange(setsParalelaCorredera2HPasivaCotaVariable);
+            }
+
+            #endregion
+
+            #region PLEGABLES
+
+            List<Set> setsPlegablesCotaVariable = GetSetsCVPlegables();
+
+            if (setsPlegablesCotaVariable.Any())
+            {
+                setList.Add(new Set("CV PLEGABLE"));
+                setList.AddRange(setsPlegablesCotaVariable);
+            }
+
+            #endregion
+
+            #endregion
+
+            return setList;
+        }
 
         #region Métodos obtener Sets
         #region VENTANAS
+
+        #region PVC
         private List<Set> GetSetsCF1HActivaVentanaOsciloBatiente()
         {
 
-            List<Set> setCF1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code).Where(s => s.Code.ToUpper().StartsWith("(1V)1H") &&
+            List<Set> setCF1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code).Where(s => (s.Code.ToUpper().StartsWith("(1V)1H") || s.Code.ToUpper().StartsWith("(1V)1H")) &&
                                                                                     s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
                                                                                     !s.Code.ToUpper().Contains("BALC")).ToList();
 
@@ -1155,7 +2137,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("CotaVariable", "No"),
                     new Option("Asociada", "Ninguna"),
@@ -1185,7 +2167,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("CotaVariable", "Sí"),
                     new Option("Asociada", "Ninguna"),
@@ -1216,7 +2198,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("CotaVariable", "No"),
                     new Option("Asociada", "Ninguna"),
@@ -1246,7 +2228,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("CotaVariable", "Sí"),
                     new Option("Asociada", "Ninguna"),
@@ -1290,7 +2272,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
                 //set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
@@ -1378,7 +2360,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
@@ -1456,7 +2438,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
@@ -1530,7 +2512,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
@@ -1603,7 +2585,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -1685,7 +2667,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -1745,11 +2727,1316 @@ namespace RotoConectorHerraje
 
             return setCF2HPasivaVentanaPracticable;
         }
+        #endregion
+
+        #region ALUMINIO
+        private List<Set> GetSetsCF1HActivaVentanaOsciloBatienteALU()
+        {
+
+            List<Set> setCF1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code).Where(s => s.Code.ToUpper().StartsWith("(1AV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                    !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF1HVentanaOscilobatiente;
+        }
+        private List<Set> GetSetsCV1HActivaVentanaOsciloBatienteALU()
+        {
+
+            List<Set> setCV1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code).Where(s => s.Code.ToUpper().StartsWith("(2AV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                    !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV1HVentanaOscilobatiente;
+        }
+
+        private List<Set> GetSetsCF1HActivaVentanaPracticableALU()
+        {
+            List<Set> setCF1HVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1AV)1H") &&
+                                                                                s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF1HVentanaPracticable)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF1HVentanaPracticable;
+        }
+        private List<Set> GetSetsCV1HActivaVentanaPracticableALU()
+        {
+            List<Set> setCV1HVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                    .Where(s => s.Code.ToUpper().StartsWith("(2AV)1H") &&
+                                                                                s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV1HVentanaPracticable)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV1HVentanaPracticable;
+        }
+
+        private List<Set> GetSetsCF2HActivaVentanaOsciloBatienteALU()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCF2HActivaVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1AV)2A") &&
+                                                                                        //!s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF2HActivaVentanaOscilobatiente)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                //set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Asociada
+                if (set.Code.ToUpper().Contains("-2P"))
+                {
+                    // TODO: 2A-2P Validar
+                    set.OptionConectorList.Add(new Option("Asociada", "Oscilobatiente"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                }
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCF2HActivaVentanaOscilobatiente);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+        private List<Set> GetSetsCV2HActivaVentanaOsciloBatienteALU()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCV2HActivaVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2AV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV2HActivaVentanaOscilobatiente)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCV2HActivaVentanaOscilobatiente);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+
+        private List<Set> GetSetsCF2HActivaVentanaPracticableALU()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCF2HActivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1AV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCF2HActivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCF2HActivaVentanaPracticable);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+        private List<Set> GetSetsCV2HActivaVentanaPracticableALU()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCV2HActivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2AV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCV2HActivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCV2HActivaVentanaPracticable);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+
+        private List<Set> GetSetsCF2HPasivaVentanaPracticableALU()
+        {
+            List<Set> setCF2HPasivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1AV)2P") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCF2HPasivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            return setCF2HPasivaVentanaPracticable;
+        }
+        private List<Set> GetSetsCV2HPasivaVentanaPracticableALU()
+        {
+            List<Set> setCF2HPasivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2AV)2P") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("ALV") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCF2HPasivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            return setCF2HPasivaVentanaPracticable;
+        }
+        #endregion
+
+        #region PAX
+        private List<Set> GetSetsCF1HActivaVentanaOsciloBatientePAX()
+        {
+
+            List<Set> setCF1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code).Where(s => s.Code.ToUpper().StartsWith("(1XV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                    !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF1HVentanaOscilobatiente;
+        }
+        private List<Set> GetSetsCV1HActivaVentanaOsciloBatientePAX()
+        {
+
+            List<Set> setCV1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code).Where(s => s.Code.ToUpper().StartsWith("(2XV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                    !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV1HVentanaOscilobatiente;
+        }
+
+        private List<Set> GetSetsCF1HActivaVentanaPracticablePAX()
+        {
+            List<Set> setCF1HVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1XV)1H") &&
+                                                                                s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF1HVentanaPracticable)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF1HVentanaPracticable;
+        }
+        private List<Set> GetSetsCV1HActivaVentanaPracticablePAX()
+        {
+            List<Set> setCV1HVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                    .Where(s => s.Code.ToUpper().StartsWith("(2XV)1H") &&
+                                                                                s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV1HVentanaPracticable)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_No"),
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
+                }
+                else if (set.Code.ToUpper().Contains("RC1"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
+                }
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV1HVentanaPracticable;
+        }
+
+        private List<Set> GetSetsCF2HActivaVentanaOsciloBatientePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCF2HActivaVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)2A") &&
+                                                                                        //!s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF2HActivaVentanaOscilobatiente)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                //set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Asociada
+                if (set.Code.ToUpper().Contains("-2P"))
+                {
+                    // TODO: 2A-2P Validar
+                    set.OptionConectorList.Add(new Option("Asociada", "Oscilobatiente"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                }
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCF2HActivaVentanaOscilobatiente);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+        private List<Set> GetSetsCV2HActivaVentanaOsciloBatientePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCV2HActivaVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV2HActivaVentanaOscilobatiente)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCV2HActivaVentanaOscilobatiente);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+
+        private List<Set> GetSetsCF2HActivaVentanaPracticablePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCF2HActivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCF2HActivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCF2HActivaVentanaPracticable);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+        private List<Set> GetSetsCV2HActivaVentanaPracticablePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCV2HActivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCV2HActivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCV2HActivaVentanaPracticable);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+
+        private List<Set> GetSetsCF2HPasivaVentanaPracticablePAX()
+        {
+            List<Set> setCF2HPasivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)2P") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCF2HPasivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            return setCF2HPasivaVentanaPracticable;
+        }
+        private List<Set> GetSetsCV2HPasivaVentanaPracticablePAX()
+        {
+            List<Set> setCF2HPasivaVentanaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)2P") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("ALV") &&
+                                                                                        !s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCF2HPasivaVentanaPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_No"));
+
+                //Aguja
+                if (set.Code.Contains("8"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag8"));
+                }
+                else
+                {
+                    set.OptionConectorList.Add(new Option("RO_AGUJA", "Ag15"));
+                }
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            return setCF2HPasivaVentanaPracticable;
+        }
+        #endregion
 
         #endregion
 
         #region BALCONERAS
 
+        #region PVC
         private List<Set> GetSetsCF1HActivaBalconeraOsciloBatiente()
         {
 
@@ -1762,7 +4049,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("CotaVariable", "No"),
                     new Option("Asociada", "Ninguna"),
@@ -1793,7 +4080,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("CotaVariable", "Sí"),
                     new Option("Asociada", "Ninguna"),
@@ -1826,7 +4113,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("Puerta", "No"),
                     new Option("CotaVariable", "No"),
@@ -1859,7 +4146,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("Puerta", "No"),
                     new Option("CotaVariable", "Sí"),
@@ -1904,7 +4191,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
@@ -1972,7 +4259,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
@@ -2042,7 +4329,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
@@ -2112,7 +4399,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
@@ -2180,7 +4467,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2252,7 +4539,7 @@ namespace RotoConectorHerraje
                 Set setCopySTDCremonaPlus = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2316,7 +4603,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("Puerta", "No"),
                     new Option("CotaVariable", "No"),
@@ -2348,7 +4635,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("Puerta", "No"),
                     new Option("CotaVariable", "Sí"),
@@ -2381,7 +4668,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("Puerta", "No"),
                     new Option("CotaVariable", "No"),
@@ -2413,7 +4700,7 @@ namespace RotoConectorHerraje
             {
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("Puerta", "No"),
                     new Option("CotaVariable", "Sí"),
@@ -2450,7 +4737,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2492,7 +4779,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2517,11 +4804,783 @@ namespace RotoConectorHerraje
 
             return setCF2HPasivaBalconeraPracticableAperturaExterior;
         }
+        #endregion
+
+        #region PAX
+        private List<Set> GetSetsCF1HActivaBalconeraOsciloBatientePAX()
+        {
+
+            List<Set> setCF1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                        .Where(s => s.Code.ToUpper().StartsWith("(1XV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                    s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF1HVentanaOscilobatiente;
+        }
+        private List<Set> GetSetsCV1HActivaBalconeraOsciloBatientePAX()
+        {
+
+            List<Set> setCF1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                        .Where(s => s.Code.ToUpper().StartsWith("(2XV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                    s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF1HVentanaOscilobatiente;
+        }
+
+        private List<Set> GetSetsCF1HActivaBalconeraPracticablePAX()
+        {
+
+            List<Set> setCV1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                        .Where(s => s.Code.ToUpper().StartsWith("(1XV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                    !s.Code.ToUpper().Contains("AE") &&
+                                                                                    s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("Puerta", "No"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV1HVentanaOscilobatiente;
+        }
+        private List<Set> GetSetsCV1HActivaBalconeraPracticablePAX()
+        {
+
+            List<Set> setCV1HVentanaOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                        .Where(s => s.Code.ToUpper().StartsWith("(2XV)1H") &&
+                                                                                    s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                    !s.Code.ToUpper().Contains("AE") &&
+                                                                                    s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV1HVentanaOscilobatiente)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("Puerta", "No"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV1HVentanaOscilobatiente;
+        }
+
+        private List<Set> GetSetsCF2HActivaBalconeraOsciloBatientePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCF2HActivaBalconeraOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                .Where(s => s.Code.ToUpper().StartsWith("(1XV)2A") &&
+                                                                                            !s.Code.ToUpper().Contains("-2P") &&
+                                                                                            s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                            s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF2HActivaBalconeraOscilobatiente)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCF2HActivaBalconeraOscilobatiente);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+        private List<Set> GetSetsCV2HActivaBalconeraOsciloBatientePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCV2HActivaBalconeraOscilobatiente = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                .Where(s => s.Code.ToUpper().StartsWith("(2XV)2A") &&
+                                                                                            !s.Code.ToUpper().Contains("-2P") &&
+                                                                                            s.Code.ToUpper().Contains("OSCILOBATIENTE") &&
+                                                                                            s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV2HActivaBalconeraOscilobatiente)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCV2HActivaBalconeraOscilobatiente);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+
+        private List<Set> GetSetsCF2HActivaBalconeraPracticablePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCF2HActivaBalconeraPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("AE") &&
+                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF2HActivaBalconeraPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCF2HActivaBalconeraPracticable);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+        private List<Set> GetSetsCV2HActivaBalconeraPracticablePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setCV2HActivaBalconeraPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)2A") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("AE") &&
+                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV2HActivaBalconeraPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+                    setCopySTDPerimetralPlus = new Set(set);
+                    setCopySTDCremona = new Set(set);
+                    setCopySTDCremonaPlus = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopySTDPerimetralPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    setCopySTDCremona.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    setCopySTDCremonaPlus.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+
+                    setsResult.Add(setCopySTDPerimetralPlus);
+                    setsResult.Add(setCopySTDCremona);
+                    setsResult.Add(setCopySTDCremonaPlus);
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+                    setCopyRC2 = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    setCopyRC2.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+
+                    setsResult.Add(setCopyRC2);
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            setsResult.AddRange(setCV2HActivaBalconeraPracticable);
+            return setsResult.OrderBy(s => s.Code).ToList();
+
+        }
+
+        private List<Set> GetSetsCF2HPasivaBalconeraPracticablePAX()
+        {
+            List<Set> setCF2HPasivaBalconeraPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)2P") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("AE") &&
+                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCF2HPasivaBalconeraPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            return setCF2HPasivaBalconeraPracticable;
+        }
+        private List<Set> GetSetsCV2HPasivaBalconeraPracticablePAX()
+        {
+            List<Set> setCV2HPasivaBalconeraPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)2P") &&
+                                                                                        !s.Code.ToUpper().Contains("-2P") &&
+                                                                                        !s.Code.ToUpper().Contains("AE") &&
+                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+            foreach (Set set in setCV2HPasivaBalconeraPracticable)
+            {
+                //Asignar opening flags
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+
+                //Gestión opciones
+                Set setCopyRC2 = new Set();
+                Set setCopySTDCremona = new Set();
+                Set setCopySTDPerimetralPlus = new Set();
+                Set setCopySTDCremonaPlus = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "STD"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("RC2"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERRAJE SEGURIDAD", "RC2"));
+
+                    if (set.Code.ToUpper().Contains("PERIMETRAL") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("PERIMETRAL") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Perimetral"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("2SC"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Click y Pasador"));
+                }
+            }
+
+            return setCV2HPasivaBalconeraPracticable;
+        }
+
+        private List<Set> GetSetsCF1HActivaBalconeraPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setCF1HActivaBalconeraPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)1H") &&
+                                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                                        s.Code.ToUpper().Contains("AE") &&
+                                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF1HActivaBalconeraPracticableAperturaExterior)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("Puerta", "No"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF1HActivaBalconeraPracticableAperturaExterior;
+        }
+        private List<Set> GetSetsCV1HActivaBalconeraPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setCV1HActivaBalconeraPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)1H") &&
+                                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                                        s.Code.ToUpper().Contains("AE") &&
+                                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV1HActivaBalconeraPracticableAperturaExterior)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("Puerta", "No"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Ninguna"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV1HActivaBalconeraPracticableAperturaExterior;
+        }
+
+        private List<Set> GetSetsCF2HActivaBalconeraPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setCF2HActivaBalconeraPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)2A") &&
+                                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                                        s.Code.ToUpper().Contains("AE") &&
+                                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF2HActivaBalconeraPracticableAperturaExterior)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("Puerta", "No"),
+                    new Option("CotaVariable", "No"),
+                    new Option("Asociada", "Practicable"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCF2HActivaBalconeraPracticableAperturaExterior;
+        }
+        private List<Set> GetSetsCV2HActivaBalconeraPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setCV2HActivaBalconeraPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)2A") &&
+                                                                                                        s.Code.ToUpper().Contains("PRACTICABLE") &&
+                                                                                                        s.Code.ToUpper().Contains("AE") &&
+                                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCV2HActivaBalconeraPracticableAperturaExterior)
+            {
+                List<Option> optionList =
+                [
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
+                    new Option("Activa", "Sí"),
+                    new Option("Puerta", "No"),
+                    new Option("CotaVariable", "Sí"),
+                    new Option("Asociada", "Practicable"),
+                    new Option("RO_NX_EASY MIX", "Easy Mix_Si"),
+                    new Option("RO_SEC_TIPO BALCONERA", "Balconera"),
+                ];
+
+                set.OptionConectorList = optionList;
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+                }
+            }
+
+            return setCV2HActivaBalconeraPracticableAperturaExterior;
+        }
+
+        private List<Set> GetSetsCF2HPasivaBalconeraPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setCF2HPasivaBalconeraPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                            .Where(s => s.Code.ToUpper().StartsWith("(1XV)2P") &&
+                                                                                                        s.Code.ToUpper().Contains("AE") &&
+                                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF2HPasivaBalconeraPracticableAperturaExterior)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+
+            }
+
+            return setCF2HPasivaBalconeraPracticableAperturaExterior;
+        }
+        private List<Set> GetSetsCV2HPasivaBalconeraPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setCF2HPasivaBalconeraPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                            .Where(s => s.Code.ToUpper().StartsWith("(2XV)2P") &&
+                                                                                                        s.Code.ToUpper().Contains("AE") &&
+                                                                                                        s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setCF2HPasivaBalconeraPracticableAperturaExterior)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Balconera"));
+
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("STD"))
+                {
+                    if (set.Code.ToUpper().Contains("CREMONA") && set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona PLUS"));
+                    }
+                    else if (set.Code.ToUpper().Contains("CREMONA") && !set.Code.ToUpper().Contains("PLUS"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_NX_HERR. HOJA PASIVA", "Cremona"));
+                    }
+                }
+
+            }
+
+            return setCF2HPasivaBalconeraPracticableAperturaExterior;
+        }
+        #endregion
 
         #endregion
 
         #region PUERTA SECUNDARIA
 
+        #region PVC
         private List<Set> GetSetsCF1HActivaPuertaSecundariaPracticable()
         {
 
@@ -2540,7 +5599,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2584,7 +5643,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2633,7 +5692,7 @@ namespace RotoConectorHerraje
                 Set setCopyPueSecunCremona = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2675,7 +5734,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2720,7 +5779,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2771,7 +5830,283 @@ namespace RotoConectorHerraje
                 Set setCopyPueSecunCremona = new Set();
 
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+
+                if (set.Code.ToUpper().Contains("NX"))
+                {
+                    setCopyPueSecunBombillo = new Set(set);
+                    setCopyPueSecunCremona = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Manilla"));
+                    setCopyPueSecunBombillo.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Bombillo"));
+                    setCopyPueSecunCremona.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Cremona"));
+
+                    setsResult.Add(setCopyPueSecunBombillo);
+                    setsResult.Add(setCopyPueSecunCremona);
+                }
+            }
+
+            setsResult.AddRange(setsCF2HPasivaPuertaSecundariaPracticableAperturaExterior);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+        #endregion
+
+        #region PAX
+
+        private List<Set> GetSetsCF1HActivaPuertaSecundariaPracticablePAX()
+        {
+
+            List<Set> setsCF1HActivaPuertaSecundariaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1X)1H") &&
+                                                                                                s.Code.ToUpper().Contains("SEC") &&
+                                                                                                !s.Code.ToUpper().Contains("AE") &&
+                                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setsCF1HActivaPuertaSecundariaPracticable)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("H600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Manilla"));
+                }
+                else if (set.Code.ToUpper().Contains("C600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Bombillo"));
+                }
+                else if (set.Code.ToUpper().Contains("EM NX"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Cremona"));
+                }
+            }
+
+            return setsCF1HActivaPuertaSecundariaPracticable;
+        }
+
+        private List<Set> GetSetsCF2HActivaPuertaSecundariaPracticablePAX()
+        {
+
+            List<Set> setsCF2HActivaPuertaSecundariaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1X)2A") &&
+                                                                                                s.Code.ToUpper().Contains("SEC") &&
+                                                                                                !s.Code.ToUpper().Contains("AE") &&
+                                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setsCF2HActivaPuertaSecundariaPracticable)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("H600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Manilla"));
+                }
+                else if (set.Code.ToUpper().Contains("C600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Bombillo"));
+                }
+                else if (set.Code.ToUpper().Contains("EM NX"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Cremona"));
+                }
+            }
+
+            return setsCF2HActivaPuertaSecundariaPracticable;
+        }
+
+        private List<Set> GetSetsCF2HPasivaPuertaSecundariaPracticablePAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setsCF2HPasivaPuertaSecundariaPracticable = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1X)2P") &&
+                                                                                                s.Code.ToUpper().Contains("SEC") &&
+                                                                                                !s.Code.ToUpper().Contains("AE") &&
+                                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setsCF2HPasivaPuertaSecundariaPracticable)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+
+                //Gestión opciones
+                Set setCopyPueSecunBombillo = new Set();
+                Set setCopyPueSecunCremona = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+
+                if (set.Code.ToUpper().Contains("NX"))
+                {
+                    setCopyPueSecunBombillo = new Set(set);
+                    setCopyPueSecunCremona = new Set(set);
+
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Manilla"));
+                    setCopyPueSecunBombillo.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Bombillo"));
+                    setCopyPueSecunCremona.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Cremona"));
+
+                    setsResult.Add(setCopyPueSecunBombillo);
+                    setsResult.Add(setCopyPueSecunCremona);
+                }
+            }
+
+            setsResult.AddRange(setsCF2HPasivaPuertaSecundariaPracticable);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+
+        private List<Set> GetSetsCF1HActivaPuertaSecundariaPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setsCF1HActivaPuertaSecundariaPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1X)1H") &&
+                                                                                                                s.Code.ToUpper().Contains("SEC") &&
+                                                                                                                s.Code.ToUpper().Contains("AE") &&
+                                                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setsCF1HActivaPuertaSecundariaPracticableAperturaExterior)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("H600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Manilla"));
+                }
+                else if (set.Code.ToUpper().Contains("C600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Bombillo"));
+                }
+                else if (set.Code.ToUpper().Contains("EM NX"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Cremona"));
+                }
+
+            }
+
+            return setsCF1HActivaPuertaSecundariaPracticableAperturaExterior;
+        }
+
+        private List<Set> GetSetsCF2HActivaPuertaSecundariaPracticableAperturaExteriorPAX()
+        {
+
+            List<Set> setsCF2HActivaPuertaSecundariaPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1X)2A") &&
+                                                                                                                s.Code.ToUpper().Contains("SEC") &&
+                                                                                                                s.Code.ToUpper().Contains("AE") &&
+                                                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setsCF2HActivaPuertaSecundariaPracticableAperturaExterior)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("Puerta", "No"));
+                set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+
+
+                //Seguridad
+                if (set.Code.ToUpper().Contains("H600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Manilla"));
+                }
+                else if (set.Code.ToUpper().Contains("C600"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Acc. Bombillo"));
+                }
+                else if (set.Code.ToUpper().Contains("EM NX"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_SEC_TIPO BALCONERA", "Puerta Secundaria Cremona"));
+                }
+
+            }
+
+            return setsCF2HActivaPuertaSecundariaPracticableAperturaExterior;
+
+        }
+
+        private List<Set> GetSetsCF2HPasivaPuertaSecundariaPracticableAperturaExteriorPAX()
+        {
+            List<Set> setsResult = new List<Set>();
+            List<Set> setsCF2HPasivaPuertaSecundariaPracticableAperturaExterior = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                                                    .Where(s => s.Code.ToUpper().StartsWith("(1X)2P") &&
+                                                                                                                s.Code.ToUpper().Contains("SEC") &&
+                                                                                                                s.Code.ToUpper().Contains("AE") &&
+                                                                                                                !s.Code.ToUpper().Contains("BALC")).ToList();
+
+            foreach (Set set in setsCF2HPasivaPuertaSecundariaPracticableAperturaExterior)
+            {
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+
+                //Gestión opciones
+                Set setCopyPueSecunBombillo = new Set();
+                Set setCopyPueSecunCremona = new Set();
+
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
@@ -2797,8 +6132,12 @@ namespace RotoConectorHerraje
 
         #endregion
 
+        #endregion
+
+
         #region PUERTAS
 
+        #region PVC
         private List<Set> GetSetsCF1HActivaPuerta()
         {
 
@@ -2815,7 +6154,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
@@ -2910,7 +6249,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
@@ -2942,7 +6281,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
@@ -3043,7 +6382,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
@@ -3074,7 +6413,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "Sí"));
@@ -3124,7 +6463,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
                 set.OptionConectorList.Add(new Option("Puerta", "Sí"));
@@ -3155,7 +6494,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
@@ -3249,7 +6588,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
@@ -3281,7 +6620,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
@@ -3381,7 +6720,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
@@ -3416,7 +6755,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "Sí"));
@@ -3469,7 +6808,696 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("COMUN"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "1 punto"));
+                }
+
+            }
+
+            setsResult.AddRange(setsCF2HPasivaPuertaAE);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+        #endregion
+
+        #region PAX
+        private List<Set> GetSetsCF1HActivaPuertaPAX()
+        {
+
+            List<Set> setsCF1HActivaPuerta = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(1X)1H") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            !s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCF1HActivaPuerta)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("BULONES"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Bulones"));
+                }
+                else if (set.Code.ToUpper().Contains("TANDEO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Tandeo"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("A700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "A700"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("COMBINADA"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Combinada"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO A"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Eneo A"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO E700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "E700"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+            }
+
+            return setsCF1HActivaPuerta;
+        }
+        private List<Set> GetSetsCV1HActivaPuertaPAX()
+        {
+
+            List<Set> setsCV1HActivaPuerta = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(2X)1H") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            !s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCV1HActivaPuerta)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("1PUNTO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "1 punto"));
+                }
+            }
+
+            return setsCV1HActivaPuerta;
+        }
+
+        private List<Set> GetSetsCF2HActivaPuertaPAX()
+        {
+            List<Set> setsCF1HActivaPuerta = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(1X)2A") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            !s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCF1HActivaPuerta)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("BULONES"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Bulones"));
+                }
+                else if (set.Code.ToUpper().Contains("TANDEO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Tandeo"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("A700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "A700"));
+
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("E700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "E700"));
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("COMBINADA"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Combinada"));
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO A"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Eneo A"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO E700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "E700"));
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                }
+            }
+
+            return setsCF1HActivaPuerta;
+        }
+        private List<Set> GetSetsCV2HActivaPuertaPAX()
+        {
+            List<Set> setsCV2HActivaPuerta = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(2X)2A") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            !s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCV2HActivaPuerta)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("1PUNTO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "1 punto"));
+                }
+            }
+            return setsCV2HActivaPuerta;
+        }
+
+
+        private List<Set> GetSetsCF2HPasivaPuertaPAX()
+        {
+            List<Set> setsCF1HActivaPuerta = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(1X)2P") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            !s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCF1HActivaPuerta)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("COMUN"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Pasador"));
+                }
+                else if (set.Code.ToUpper().Contains("TANDEO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Tandeo"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+                else if (set.Code.ToUpper().Contains("A700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Eneo A"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+                else if (set.Code.ToUpper().Contains("COMBINADA"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Combinada"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+                else if (set.Code.ToUpper().Contains("PG"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+            }
+
+            return setsCF1HActivaPuerta;
+        }
+        private List<Set> GetSetsCV2HPasivaPuertaPAX()
+        {
+            List<Set> setsCV1HActivaPuerta = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(2X)2P") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            !s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCV1HActivaPuerta)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("COMUN"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "1 punto"));
+                }
+            }
+
+            return setsCV1HActivaPuerta;
+        }
+
+        private List<Set> GetSetsCF1HPuertaAperturaExteriorPAX()
+        {
+
+            List<Set> setsCF1HActivaPuerta = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(1X)1H") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            s.Code.ToUpper().Contains("AE")).ToList();
+            foreach (Set set in setsCF1HActivaPuerta)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("BULONES"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Bulones"));
+                }
+                else if (set.Code.ToUpper().Contains("TANDEO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Tandeo"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("A700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "A700"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("COMBINADA"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Combinada"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO A"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Eneo A"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO E700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "E700"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+            }
+
+            return setsCF1HActivaPuerta;
+        }
+        private List<Set> GetSetsCV1HPuertaAperturaExteriorPAX()
+        {
+
+            List<Set> setsCV1HActivaPuertaAE = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(2X)1H") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            s.Code.ToUpper().Contains("AE")).ToList();
+            foreach (Set set in setsCV1HActivaPuertaAE)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("1PUNTO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "1 punto"));
+                }
+            }
+
+            return setsCV1HActivaPuertaAE;
+        }
+
+        private List<Set> GetSetsCF2HActivaPuertaAperturaExteriorPAX()
+        {
+            List<Set> setsCF2HActivaPuertaAE = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(1X)2A") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCF2HActivaPuertaAE)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("BULONES"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Bulones"));
+                }
+                else if (set.Code.ToUpper().Contains("TANDEO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Tandeo"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("A700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "A700"));
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("E700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "E700"));
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("COMBINADA"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Combinada"));
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO A"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Eneo A"));
+                    if (set.Code.ToUpper().Contains("KF"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Komfort"));
+                    }
+                    else
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    }
+                }
+                else if (set.Code.ToUpper().Contains("ENEO E700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "E700"));
+                    if (set.Code.ToUpper().Contains("PG"))
+                    {
+                        set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                    }
+                }
+            }
+
+            return setsCF2HActivaPuertaAE;
+        }
+        private List<Set> GetSetsCV2HActivaPuertaAperturaExteriorPAX()
+        {
+            List<Set> setsCV2HActivaPuertaAE = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(2X)2A") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCV2HActivaPuertaAE)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "Sí"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
+                set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("1PUNTO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "1 punto"));
+                }
+            }
+
+            return setsCV2HActivaPuertaAE;
+        }
+
+        private List<Set> GetSetsCF2HPasivaPuertaAperturaExteriorPAX()
+        {
+            List<Set> setsResult = new List<Set>();
+
+            List<Set> setsCF2HPasivaPuertaAE = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(1X)2P") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCF2HPasivaPuertaAE)
+            {
+                Set setCopyA700 = new Set();
+
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
+                set.OptionConectorList.Add(new Option("Activa", "No"));
+                set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
+                set.OptionConectorList.Add(new Option("Puerta", "Sí"));
+
+
+                //CERRADURAS
+                if (set.Code.ToUpper().Contains("COMUN"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADERO", "Clasico"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Pasador"));
+                }
+                else if (set.Code.ToUpper().Contains("TANDEO"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Tandeo"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+                else if (set.Code.ToUpper().Contains("A700"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Eneo A"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+                else if (set.Code.ToUpper().Contains("COMBINADA"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_CERRADURA PUERTA", "Combinada"));
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+                else if (set.Code.ToUpper().Contains("PG"))
+                {
+                    set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
+                }
+            }
+
+            setsResult.AddRange(setsCF2HPasivaPuertaAE);
+            return setsResult.OrderBy(s => s.Code).ToList();
+        }
+        private List<Set> GetSetsCV2HPasivaPuertaAperturaExteriorPAX()
+        {
+            List<Set> setsResult = new List<Set>();
+
+            List<Set> setsCF2HPasivaPuertaAE = xmlOrigen.SetList.OrderBy(x => x.Code)
+                                                                .Where(s => s.Code.ToUpper().StartsWith("(2X)2P") &&
+                                                                            s.Code.ToUpper().Contains("PUERTA") &&
+                                                                            s.Code.ToUpper().Contains("AE")).ToList();
+
+            foreach (Set set in setsCF2HPasivaPuertaAE)
+            {
+                if (set.Opening != null)
+                {
+                    set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
+
+                }
+                set.OptionConectorList = new List<Option>();
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "No"));
                 set.OptionConectorList.Add(new Option("AsociadaCotaVariable", "No"));
                 set.OptionConectorList.Add(new Option("Puerta", "Sí"));
@@ -3488,6 +7516,8 @@ namespace RotoConectorHerraje
 
         #endregion
 
+        #endregion
+
         #region CORREDERAS
 
         private List<Set> GetSetsCFCorredera()
@@ -3502,7 +7532,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
 
 
                 if (set.Opening?.Active != null && set.Opening?.Active == "true")
@@ -3535,7 +7565,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
 
 
 
@@ -3580,7 +7610,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
 
@@ -3639,7 +7669,7 @@ namespace RotoConectorHerraje
 
                 }
                 set.OptionConectorList = new List<Option>();
-                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.supplier));
+                set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "Sí"));
 
@@ -3702,7 +7732,7 @@ namespace RotoConectorHerraje
                 }
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
                 ];
@@ -3742,7 +7772,7 @@ namespace RotoConectorHerraje
                 }
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("AsociadaOpuesta", "Ninguna"),
                     new Option("CotaVariable", "Sí"),
@@ -3780,7 +7810,7 @@ namespace RotoConectorHerraje
                 }
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("AsociadaOpuesta", "Oscilobatiente"),
                     new Option("CotaVariable", "Sí"),
@@ -3827,7 +7857,7 @@ namespace RotoConectorHerraje
                 }
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("AsociadaOpuesta", "Oscilobatiente"),
                     new Option("CotaVariable", "Sí")
@@ -3877,7 +7907,7 @@ namespace RotoConectorHerraje
                 }
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("AsociadaOpuesta", "Ninguna"),
                     new Option("CotaVariable", "Sí"),
@@ -3926,7 +7956,7 @@ namespace RotoConectorHerraje
                 }
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("AsociadaOpuesta", "Oscilobatiente"),
                     new Option("CotaVariable", "Sí"),
@@ -3984,7 +8014,7 @@ namespace RotoConectorHerraje
                 }
                 List<Option> optionList =
                 [
-                    new Option("HardwareSupplier", xmlOrigen.supplier),
+                    new Option("HardwareSupplier", xmlOrigen.Supplier),
                     new Option("Activa", "Sí"),
                     new Option("AsociadaOpuesta", "Oscilobatiente"),
                     new Option("CotaVariable", "Sí")
@@ -4121,7 +8151,7 @@ namespace RotoConectorHerraje
             if (xmlCargado)
             {
                 List<Set> setsConector = GetSetsToConnector();
-                GeneraConector generaConectorForm = new GeneraConector(xmlOrigen, setsConector, xmlOrigen.supplier, ConnectionString, Server, BaseDatos);
+                GeneraConector generaConectorForm = new GeneraConector(xmlOrigen, setsConector, xmlOrigen.Supplier, ConnectionString, Server, BaseDatos);
 
                 generaConectorForm.ShowDialog();
             }

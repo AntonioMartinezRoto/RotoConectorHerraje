@@ -104,7 +104,7 @@ namespace RotoConectorHerraje
                 saveFileDialog.Title = "Guardar archivo XML";
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    XmlDocument conectorHerrajeGenerado = GenerateConnectorXml(xmlOrigen.supplier);
+                    XmlDocument conectorHerrajeGenerado = GenerateConnectorXml(xmlOrigen.Supplier);
 
                     conectorHerrajeGenerado.Save(saveFileDialog.FileName);
                     MessageBox.Show("Conector generadado correctamente.");
