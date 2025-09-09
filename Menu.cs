@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
@@ -53,6 +54,9 @@ namespace RotoConectorHerraje
 
         private void Menu_Load(object sender, EventArgs e)
         {
+            // Obtiene la versión del ensamblado actual
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            this.Text = $"RotoConectorHerraje v{version.Major}.{version.Minor}";
             CargarDatos();
         }
 
