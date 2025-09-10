@@ -3349,23 +3349,11 @@ namespace RotoConectorHerraje
                     new Option("CotaVariable", "No"),
                     new Option("Asociada", "Ninguna"),
                     new Option("RO_NX_EASY MIX", "Easy Mix_No"),
-                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD")
                 ];
 
                 set.OptionConectorList = optionList;
-
-                if (set.Code.ToUpper().Contains("RC2"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
-                }
-                else if (set.Code.ToUpper().Contains("RC1"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
-                }
-                else
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
-                }
 
                 if (set.Opening != null)
                 {
@@ -3391,23 +3379,11 @@ namespace RotoConectorHerraje
                     new Option("CotaVariable", "Sí"),
                     new Option("Asociada", "Ninguna"),
                     new Option("RO_NX_EASY MIX", "Easy Mix_No"),
-                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD")
                 ];
 
                 set.OptionConectorList = optionList;
-
-                if (set.Code.ToUpper().Contains("RC2"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
-                }
-                else if (set.Code.ToUpper().Contains("RC1"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
-                }
-                else
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
-                }
 
                 if (set.Opening != null)
                 {
@@ -3434,24 +3410,11 @@ namespace RotoConectorHerraje
                     new Option("CotaVariable", "No"),
                     new Option("Asociada", "Ninguna"),
                     new Option("RO_NX_EASY MIX", "Easy Mix_No"),
-                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD")
                 ];
 
                 set.OptionConectorList = optionList;
-
-                if (set.Code.ToUpper().Contains("RC2"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
-                }
-                else if (set.Code.ToUpper().Contains("RC1"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
-                }
-                else
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
-                }
-
 
                 if (set.Opening != null)
                 {
@@ -3477,23 +3440,12 @@ namespace RotoConectorHerraje
                     new Option("CotaVariable", "Sí"),
                     new Option("Asociada", "Ninguna"),
                     new Option("RO_NX_EASY MIX", "Easy Mix_No"),
-                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15")
+                    set.Code.Contains("8") ? new Option("RO_AGUJA", "Ag8") : new Option("RO_AGUJA", "Ag15"),
+                    set.Code.Contains("RC2") ? new Option("RO_NX_HERRAJE SEGURIDAD", "RC2") : new Option("RO_NX_HERRAJE SEGURIDAD", "STD")
                 ];
 
                 set.OptionConectorList = optionList;
 
-                if (set.Code.ToUpper().Contains("RC2"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC2"));
-                }
-                else if (set.Code.ToUpper().Contains("RC1"))
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_RC1"));
-                }
-                else
-                {
-                    set.OptionConectorList.Add(new Option("RO_NT_AL_SEGURIDAD", "AL_STD"));
-                }
                 if (set.Opening != null)
                 {
                     set.OpeningFlagConectorList = GetOpeningOptions(set.Opening);
