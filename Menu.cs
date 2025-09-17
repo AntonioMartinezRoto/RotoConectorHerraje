@@ -10124,13 +10124,13 @@ namespace RotoConectorHerraje
             }
             if (opening.Turn != null && opening.Tilt == null && opening.Right != null && opening.Outer != null)
             {
-                openingFlagList.Add(new Option("Opening_Flag", "TurnRight"));
+                openingFlagList.Add(new Option("Opening_Flag", "TurnLeft"));
                 openingFlagList.Add(new Option("Opening_Flag", "Exterior"));
                 opening.openingType = (int)enumOpeningType.PracticableDerechaExt;
             }
             if (opening.Turn != null && opening.Tilt == null && opening.Left != null && opening.Outer != null)
             {
-                openingFlagList.Add(new Option("Opening_Flag", "TurnLeft"));
+                openingFlagList.Add(new Option("Opening_Flag", "TurnRight"));
                 openingFlagList.Add(new Option("Opening_Flag", "Exterior"));
                 opening.openingType = (int)enumOpeningType.PracticableIzquierdaExt;
             }
