@@ -6561,7 +6561,7 @@ namespace RotoConectorHerraje
                 set.OptionConectorList = new List<Option>();
                 set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
-                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
                 set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
@@ -6837,7 +6837,7 @@ namespace RotoConectorHerraje
                 set.OptionConectorList = new List<Option>();
                 set.OptionConectorList.Add(new Option("HardwareSupplier", xmlOrigen.Supplier));
                 set.OptionConectorList.Add(new Option("Activa", "Sí"));
-                set.OptionConectorList.Add(new Option("Asociada", "Ninguna"));
+                set.OptionConectorList.Add(new Option("Asociada", "Practicable"));
                 set.OptionConectorList.Add(new Option("Puerta", "No"));
                 set.OptionConectorList.Add(new Option("RO_NX_EASY MIX", "Easy Mix_Si"));
                 set.OptionConectorList.Add(new Option("CotaVariable", "No"));
