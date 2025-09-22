@@ -15,7 +15,7 @@ namespace RotoConectorHerraje
         {
             PracticableIzquierdaInt = 1,
             PracticableDerechaInt = 2,
-            OscilobatienteIzquierdaInt = 3, 
+            OscilobatienteIzquierdaInt = 3,
             OscilobatienteDerechaInt = 4,
             CorrederaDerecha = 5,
             CorrederaIzquierda = 6,
@@ -3248,7 +3248,7 @@ namespace RotoConectorHerraje
                     else if (set.Code.ToUpper().Contains("PASADOR Y CLIP"))
                     {
                         set.OptionConectorList.Add(new Option("RO_NT_AL_HOJA PASIVA", "AL_Clip y Pasador"));
-                    }                    
+                    }
                 }
                 else if (set.Code.ToUpper().Contains("RC2"))
                 {
@@ -7230,7 +7230,7 @@ namespace RotoConectorHerraje
                         set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
                     }
                     else
-                    {                        
+                    {
                         set.OptionConectorList.Add(new Option("RO_PU_PLETINA", "P16"));
                     }
                 }
@@ -7614,7 +7614,7 @@ namespace RotoConectorHerraje
                     if (set.Code.ToUpper().Contains("PG"))
                     {
                         set.OptionConectorList.Add(new Option("RO_PU_PASIVA", "Cremona (2CC)"));
-                    }                    
+                    }
                 }
             }
 
@@ -10191,6 +10191,12 @@ namespace RotoConectorHerraje
 
                 generaConectorForm.ShowDialog();
             }
+        }
+
+        private void btn_CombinarConectores_Click(object sender, EventArgs e)
+        {
+            CombinarConectores combinarConectoresForm = new CombinarConectores(ConnectionString, Server, BaseDatos);
+            combinarConectoresForm.ShowDialog();
         }
     }
 }
