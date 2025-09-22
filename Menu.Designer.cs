@@ -53,6 +53,7 @@
             btn_LoadXml.Margin = new Padding(3, 2, 3, 2);
             btn_LoadXml.Name = "btn_LoadXml";
             btn_LoadXml.Size = new Size(51, 42);
+
             btn_LoadXml.TabIndex = 0;
             btn_LoadXml.UseVisualStyleBackColor = true;
             btn_LoadXml.Click += btn_LoadXml_Click;
@@ -64,6 +65,7 @@
             lbl_Xml.Location = new Point(91, 48);
             lbl_Xml.Name = "lbl_Xml";
             lbl_Xml.Size = new Size(513, 34);
+
             lbl_Xml.TabIndex = 1;
             lbl_Xml.Text = "Seleccionar XML";
             // 
